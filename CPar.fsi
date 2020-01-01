@@ -38,6 +38,7 @@ type token =
   | VOID
   | WHILE
   | PRINTCH
+  | LIST
   | CSTSTRING of (string)
   | NAME of (string)
   | CSTCHAR of (char)
@@ -81,6 +82,7 @@ type tokenId =
     | TOKEN_VOID
     | TOKEN_WHILE
     | TOKEN_PRINTCH
+    | TOKEN_LIST
     | TOKEN_CSTSTRING
     | TOKEN_NAME
     | TOKEN_CSTCHAR
@@ -109,6 +111,9 @@ type nonTerminalId =
     | NONTERM_Access
     | NONTERM_Exprs
     | NONTERM_Exprs1
+    | NONTERM_LExprs
+    | NONTERM_LExprs1
+    | NONTERM_LExpr
     | NONTERM_Const
     | NONTERM_Const2
     | NONTERM_Type

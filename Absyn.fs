@@ -15,9 +15,12 @@ type typ =
   | TypL            
 
                                                                    
-and expr =                                                         
+and expr =
+  | LNode of expr list
+  | CNode of expr                                                         
   | Access of access                 (* x    or  *p    or  a[e]     *)
   | Assign of access * expr          (* x=e  or  *p=e  or  a[e]=e   *)
+  | Assign2 of access * int          (* x=e  or  *p=e  or  a[e]=e   *)
   | Addr of access                   (* &x   or  &*p   or  &a[e]    *)
   | CstI of int                      (* Constant                    *)
   | CstC of char
@@ -32,6 +35,7 @@ and access =
   | AccVar of string                 (* Variable access        x    *) 
   | AccDeref of expr                 (* Pointer dereferencing  *p   *)
   | AccIndex of access * expr        (* Array indexing         a[e] *)
+  | AccIndex2 of access * expr * expr        (* Array indexing         a[e] *)
                                                                    
 and stmt =                                                         
   | If of expr * stmt * stmt         (* Conditional                 *)
@@ -47,7 +51,6 @@ and stmtordec =
 and topdec = 
   | Fundec of typ option * string * (typ * string) list * stmt
   | Vardec of typ * string
-  | Listdec of int
 
 and program = 
   | Prog of topdec list
