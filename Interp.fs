@@ -252,25 +252,27 @@ and eval e locEnv gloEnv store : int * store =
                         | x::xr -> 1 + len xr
                     let l = (len list)
                     let loc = nextloc-5
-                    let _ = setSto store loc l
+                    let store1 = setSto store loc l
                     let rec setAd xs = 
                         match xs with
-                          | [] -> -1
-                          | x::xr -> let (res, store1) = eval x locEnv gloEnv store
-                                     let _ = setSto store1 (x+2) (setAd xr)
-                                     (res)
-                    let (res2, store2) = eval (list.Item(0)) locEnv gloEnv store1
-                    let _ = setSto store (loc+3) res2          //3:该列表的第一个元素地址
-                    (loc, store)
+                          | [] -> (-1,store1)
+                          | x::xr -> let (res, store2) = eval x locEnv gloEnv store1
+                                     let (res1, store3) = setAd xr
+                                     let store4 = setSto store3 (res+2) res1
+                                     (res,store4)
+                    let (res,store2) = setAd list
+                    let (res2, store3) = eval (list.Item(0)) locEnv gloEnv store2
+                    let store4 = setSto store3 (loc+3) res2          //3:该列表的第一个元素地址
+                    (loc, store4)
     | CNode va -> let ((env0, nextloc), store) = allocateN va locEnv store
                   let loc = nextloc - 4
                   match va with 
-                    | CstI i -> let _ = setSto store loc -1 
-                                let _ =  setSto store (loc+1) i
-                                (loc, store)
-                    | CstC c -> let _ = setSto store loc -2
-                                setSto store (loc+1) (System.Char.ConvertToUtf32(c.ToString(),0))
-                                (loc, store)
+                    | CstI i -> let store1 = setSto store loc -1 
+                                let store2 =  setSto store1 (loc+1) i
+                                (loc, store2)
+                    | CstC c -> let store1 = setSto store loc -2
+                                let store2 = setSto store1 (loc+1) (System.Char.ConvertToUtf32(c.ToString(),0))
+                                (loc, store2)
     | Access acc     -> let (loc, store1) = access acc locEnv gloEnv store
     
                         (getSto store1 loc, store1) 

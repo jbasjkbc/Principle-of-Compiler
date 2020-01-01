@@ -6,9 +6,9 @@ void main(int n) {
 //    n = n - 1;
 //  }
   
-  char ch;
+  list a;
 
-  ch = 'a';  
-  printch ch;
+  a = [4,5,3]; 
+  print a[1][0];
   println;
 }

@@ -20,7 +20,7 @@ and expr =
   | CNode of expr                                                         
   | Access of access                 (* x    or  *p    or  a[e]     *)
   | Assign of access * expr          (* x=e  or  *p=e  or  a[e]=e   *)
-  | Assign2 of access * int          (* x=e  or  *p=e  or  a[e]=e   *)
+  | Assign2 of access * expr         (* x=e  or  *p=e  or  a[e]=e   *)
   | Addr of access                   (* &x   or  &*p   or  &a[e]    *)
   | CstI of int                      (* Constant                    *)
   | CstC of char
