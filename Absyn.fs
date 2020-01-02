@@ -15,12 +15,10 @@ type typ =
   | TypL            
 
                                                                    
-and expr =
-  | LNode of expr list
-  | CNode of expr                                                         
+and expr =                                                         
   | Access of access                 (* x    or  *p    or  a[e]     *)
   | Assign of access * expr          (* x=e  or  *p=e  or  a[e]=e   *)
-  | Assign2 of access * expr         (* x=e  or  *p=e  or  a[e]=e   *)
+  | Assign2 of access * stmtordec    (* x=e  or  *p=e  or  a[e]=e   *)
   | Addr of access                   (* &x   or  &*p   or  &a[e]    *)
   | CstI of int                      (* Constant                    *)
   | CstC of char
@@ -47,6 +45,8 @@ and stmt =
 and stmtordec =                                                    
   | Dec of typ * string              (* Local variable declaration  *)
   | Stmt of stmt                     (* A statement                 *)
+  | LNode of stmtordec list
+  | CNode of expr
 
 and topdec = 
   | Fundec of typ option * string * (typ * string) list * stmt

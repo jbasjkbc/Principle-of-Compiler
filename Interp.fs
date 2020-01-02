@@ -162,12 +162,12 @@ let rec allocate (typ, x) (env0, nextloc) sto0 : locEnv * store =
 let rec allocateN va (env0, nextloc) sto0 : locEnv * store = 
     let (nextloc1, v, sto1) =(nextloc+3, nextloc, initSto nextloc 3 sto0)          //1:类型，2:值，3:下一个地址
 
-    ((env0, nextloc1 + 1), setSto sto1 nextloc1 nextloc)
+    ((env0, nextloc1+1), setSto sto1 nextloc1 nextloc)
  
 let rec allocateL va (env0, nextloc) sto0 : locEnv * store = 
     let (nextloc1, v, sto1) = (nextloc+4, nextloc, initSto nextloc 4 sto0)
 
-    ((env0, nextloc1 + 1), setSto sto1 nextloc1 nextloc)
+    ((env0, nextloc1+1), setSto sto1 nextloc1 nextloc)
 
 (* Build global environment of variables and functions.  For global
    variables, store locations are reserved; for global functions, just
@@ -231,48 +231,51 @@ let rec exec stmt (locEnv : locEnv) (gloEnv : gloEnv) (store : store) : store =
           | [ ] -> store
                              //语句块,解释 第1条语句s1
                             // 调用loop 用变更后的环境 解释后面的语句 sr.
-          | s1::sr -> loop sr (stmtordec s1 locEnv gloEnv store)
+          | s1::sr -> loop sr (stmtordec2 s1 locEnv gloEnv store)
       
       loop stmts (locEnv, store) 
     | Return _ -> failwith "return not implemented"
 
-and stmtordec stmtordec locEnv gloEnv store = 
+and stmtordec2 stmtordec locEnv gloEnv store = 
     match stmtordec with 
     | Stmt stmt   -> (locEnv, exec stmt locEnv gloEnv store)
     | Dec(typ, x) -> allocate (typ, x) locEnv store
-
-(* Evaluating micro-C expressions *)
-
-and eval e locEnv gloEnv store : int * store = 
-    match e with
-    | LNode list -> let ((env0, nextloc), store) = allocateL list locEnv store
+    | LNode list -> let rec setAd xs locEnv store= 
+                        match xs with
+                          | [] -> (locEnv,store)
+                          | x::xr -> let (locEnv1, store1) = setAd xr locEnv store
+                                     let (locEnv2, store2) = stmtordec2 x locEnv1 gloEnv store1
+                                     let store3 = setSto store2 ((snd locEnv2)-4+2) ((snd locEnv1)-4)           //列表与常量未区分
+                               
+                                     (locEnv2,store3)
+                    let (locE,store1) = setAd list locEnv store
+    
+                    let (env0, store2) = allocateL list locE store1
                     let rec len xs = 
                       match xs with   
                         | [] -> 0
                         | x::xr -> 1 + len xr
                     let l = (len list)
-                    let loc = nextloc-5
-                    let store1 = setSto store loc l
-                    let rec setAd xs = 
-                        match xs with
-                          | [] -> (-1,store1)
-                          | x::xr -> let (res, store2) = eval x locEnv gloEnv store1
-                                     let (res1, store3) = setAd xr
-                                     let store4 = setSto store3 (res+2) res1
-                                     (res,store4)
-                    let (res,store2) = setAd list
-                    let (res2, store3) = eval (list.Item(0)) locEnv gloEnv store2
-                    let store4 = setSto store3 (loc+3) res2          //3:该列表的第一个元素地址
-                    (loc, store4)
-    | CNode va -> let ((env0, nextloc), store) = allocateN va locEnv store
-                  let loc = nextloc - 4
+                    let loc = (snd env0)-5
+                    let store3 = setSto store2 loc l
+                    
+                    let store4 = setSto store3 (loc+3) ((snd locE)-4)          //3:该列表的第一个元素地址
+                    (env0, store4)
+              //        (((fst locEnv3),loc), store7)
+    | CNode va -> let (env0, store) = allocateN va locEnv store
+                  let loc = (snd env0) - 4
                   match va with 
                     | CstI i -> let store1 = setSto store loc -1 
                                 let store2 =  setSto store1 (loc+1) i
-                                (loc, store2)
+                                (env0, store2)
                     | CstC c -> let store1 = setSto store loc -2
                                 let store2 = setSto store1 (loc+1) (System.Char.ConvertToUtf32(c.ToString(),0))
-                                (loc, store2)
+                                (env0, store2)
+
+(* Evaluating micro-C expressions *)
+
+and eval e locEnv gloEnv store : int * store = 
+    match e with
     | Access acc     -> let (loc, store1) = access acc locEnv gloEnv store
     
                         (getSto store1 loc, store1) 
@@ -280,8 +283,9 @@ and eval e locEnv gloEnv store : int * store =
                         let (res, store2) = eval e locEnv gloEnv store1
                         (res, setSto store2 loc res) 
     | Assign2(acc, e) ->let (loc, store1) = access acc locEnv gloEnv store
-                        let (res, store2) = eval e locEnv gloEnv store1
-                        (res, setSto store2 loc res)
+                        let (locE, store2) = stmtordec2 e locEnv gloEnv store1
+                        let loc2 = (snd locE)-5
+                        (loc2, setSto store2 loc loc2)
     | CstI i         -> (i, store)
     | CstC c         -> (System.Char.ConvertToUtf32(c.ToString(),0), store)
     | Addr acc       -> access acc locEnv gloEnv store
@@ -338,8 +342,8 @@ and access acc locEnv gloEnv store : int * store =
       let rec searchAdd loc i1 = 
         match i1 with
           | 0 -> loc
-          | _ -> searchAdd (getSto store2 loc+2) i1-1
-      let loc1 = searchAdd (aval+3) i1
+          | _ -> searchAdd (getSto store2 (loc+2)) (i1-1)
+      let loc1 = searchAdd (getSto store2 (aval+3)) i1
       if (getSto store2 loc1) <0 then (loc1+1, store3)  else (((searchAdd (getSto store2 loc1+3) i2)+1), store3)
 
 and evals es locEnv gloEnv store : int list * store = 

@@ -9,6 +9,10 @@ void main(int n) {
   list a;
 
   a = [4,5,3]; 
-  print a[1][0];
+  print a[2][0];
+
+//  int h=0;
+
+//  print h;
   println;
 }
