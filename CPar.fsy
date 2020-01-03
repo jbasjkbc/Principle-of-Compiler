@@ -18,11 +18,11 @@ let nl = CstI 10
 %token <char> CSTCHAR
 %token <string> CSTSTRING NAME
 
-%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE PRINTCH LIST
+%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE PRINTCH LIST SWITCH CASE
 %token PLUS MINUS TIMES DIV MOD
 %token EQ NE GT LT GE LE
 %token NOT SEQOR SEQAND SELFPLUS
-%token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP
+%token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP COLON
 %token EOF
 
 %right ASSIGN             /* lowest precedence */
@@ -104,12 +104,23 @@ StmtM:  /* No unbalanced if-else */
   | Block                               { $1                   }
   | IF LPAR Expr RPAR StmtM ELSE StmtM  { If($3, $5, $7)       }
   | WHILE LPAR Expr RPAR StmtM          { While($3, $5)        }
+  | SWITCH LPAR Expr RPAR Stmts         { Switch($3, $5)       }
 ;
 
 StmtU:
     IF LPAR Expr RPAR StmtM ELSE StmtU  { If($3, $5, $7)       }
   | IF LPAR Expr RPAR Stmt              { If($3, $5, Block []) }
   | WHILE LPAR Expr RPAR StmtU          { While($3, $5)        }
+;
+
+Stmts:
+    /* empty */                         { []       }
+  | Stmts1                              { $1       }
+;
+
+Stmts1:
+    CASE Expr COLON Stmt               { [($2, $4)]     }
+  | CASE Expr COLON Stmt Stmts         { ($2, $4) :: $5 }
 ;
 
 Expr: 
