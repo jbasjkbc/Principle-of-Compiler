@@ -214,8 +214,8 @@ let rec exec stmt (locEnv : locEnv) (gloEnv : gloEnv) (store : store) : store =
                 //求值 循环条件,注意变更环境 store
               let (v, store2) = eval e locEnv gloEnv store1
                 // 继续循环
-               v<>0 then loop (exec body locEnv gloEnv store2)
-                      else store2  //退出循环返回 环境store2
+              if v<>0 then loop (exec body locEnv gloEnv store2)
+                   else store2  //退出循环返回 环境store2
       loop store
     | Switch(e, l) -> 
         let v = (fst (eval e locEnv gloEnv store))
@@ -229,12 +229,33 @@ let rec exec stmt (locEnv : locEnv) (gloEnv : gloEnv) (store : store) : store =
                       loop sr e (locEnv, store3)
       
         loop l v (locEnv, store) 
+    | Do(body,e) ->
+        let rec loop store1 =
+                //求值 循环条件,注意变更环境 store
+              let (v, store2) = eval e locEnv gloEnv store1
+                // 继续循环
+              if v<>0 then loop (exec body locEnv gloEnv store2)
+                   else store2  //退出循环返回 环境store2
+        let store1 = (exec body locEnv gloEnv store)
+        loop store1
+    | For(e1,e2,e3,body) ->
+        let (_, store2) = eval e1 locEnv gloEnv store
+        let rec loop store2 =
+                //求值 循环条件,注意变更环境 store
+              let (v, store3) = eval e2 locEnv gloEnv store2
+                // 继续循环
+              if v<>0 then let store4 = exec body locEnv gloEnv store3
+                           let (_, store5) = eval e3 locEnv gloEnv store4
+                           loop store5
+                   else store3  //退出循环返回 环境store2
 
+        loop store2
+       
     | Expr e ->
       // _ 表示丢弃e的值,返回 变更后的环境store1 
       let (_, store1) = eval e locEnv gloEnv store 
       store1 
-
+    
     | Block stmts -> 
 
         // 语句块 解释辅助函数 loop
@@ -358,6 +379,13 @@ and eval e locEnv gloEnv store : int * store =
     | CstI i         -> (i, store)
     | CstC c         -> (System.Char.ConvertToUtf32(c.ToString(),0), store)
     | Addr acc       -> access acc locEnv gloEnv store
+    | Selection(e1, e2, e3) ->
+       let (v, store2) = eval e1 locEnv gloEnv store
+
+       if v<>0 then eval e2 locEnv gloEnv store2
+               else eval e3 locEnv gloEnv store2
+       
+      
     | Prim1(ope, e1) ->
       let (i1, store1) = eval e1 locEnv gloEnv store
       let res =
@@ -411,11 +439,11 @@ and access acc locEnv gloEnv store : int * store =
       let rec searchAdd loc i1 = 
         match i1 with
           | 0 -> loc
-          | _ -> searchAdd (getSto store2 (loc+2)) (i1-1)
-      let loc1 = searchAdd (getSto store2 (aval+3)) index1
+          | _ -> searchAdd (getSto store1 (loc+2)) (idx1-1)
+      let loc1 = searchAdd (getSto store1 (aval+3)) idx1
       (printf "%c" (char 10))
-      (printf "%d " (getSto store2 (loc1+3)))
-      if (getSto store2 loc1) <0 then (loc1+1, store3)  else (((searchAdd (getSto store2 (loc1+3)) index2)+1), store3)
+      (printf "%d " (getSto store1 (loc1+3)))
+      if (getSto store1 loc1) <0 then (loc1+1, store1)  else (((searchAdd (getSto store1 (loc1+3)) idx2)+1), store1)
 
 and evals es locEnv gloEnv store : int list * store = 
     match es with 

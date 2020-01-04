@@ -8,11 +8,14 @@ void main(int n) {
   
   list a;
 
-  a = [4,5,3]; 
-  print a[2][0];
+  a = [4,[1,2],3]; 
+//  a = [1,2,2];
+  print a[0][0];
 
-//  int h=0;
+//  char h;
 
-//  print h;
+//  h = 'e';
+//  printch h;
+  
   println;
 }

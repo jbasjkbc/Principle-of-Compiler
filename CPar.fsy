@@ -18,11 +18,11 @@ let nl = CstI 10
 %token <char> CSTCHAR
 %token <string> CSTSTRING NAME
 
-%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE PRINTCH LIST SWITCH CASE
+%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE PRINTCH LIST SWITCH CASE DO FOR
 %token PLUS MINUS TIMES DIV MOD
 %token EQ NE GT LT GE LE
 %token NOT SEQOR SEQAND SELFPLUS
-%token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP COLON
+%token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP COLON QM
 %token EOF
 
 %right ASSIGN             /* lowest precedence */
@@ -105,6 +105,8 @@ StmtM:  /* No unbalanced if-else */
   | IF LPAR Expr RPAR StmtM ELSE StmtM  { If($3, $5, $7)       }
   | WHILE LPAR Expr RPAR StmtM          { While($3, $5)        }
   | SWITCH LPAR Expr RPAR Stmts         { Switch($3, $5)       }
+  | DO Stmt WHILE LPAR Expr RPAR        { Do($2, $5)           }
+  | FOR LPAR Expr SEMI Expr SEMI Expr RPAR Stmt  { For($3, $5, $7, $9)      }
 ;
 
 StmtU:
@@ -139,6 +141,7 @@ ExprNotAccess:
   | PRINTCH Expr                        { Prim1("printch", $2) }
   | PRINT Expr                          { Prim1("printi", $2) }
   | PRINTLN                             { Prim1("printc", nl) }
+  | Expr QM Expr COLON Expr             { Selection($1, $3, $5) }
   | Expr PLUS  Expr                     { Prim2("+",  $1, $3) }
   | Expr MINUS Expr                     { Prim2("-",  $1, $3) }
   | Expr TIMES Expr                     { Prim2("*",  $1, $3) }

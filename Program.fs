@@ -2,9 +2,10 @@
 
 open System
 open ParseAndComp
+//open ParseAndRun
 
 [<EntryPoint>]
 let main argv =
-    compileToFile (fromFile "ex4.c") "ex4.out"
-//    run (fromFile "ex1.c") [2];
+    compileToFile (fromFile "ex6.c") "ex6.out"
+//    run (fromFile "ex6.c") [2];
     0 // return an integer exit code

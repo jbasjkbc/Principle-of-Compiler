@@ -149,6 +149,17 @@ let rec cStmt stmt (varEnv : VarEnv) (funEnv : FunEnv) : instr list =
       let labtest  = newLabel()
       [GOTO labtest; Label labbegin] @ cStmt body varEnv funEnv
       @ [Label labtest] @ cExpr e varEnv funEnv @ [IFNZRO labbegin]
+    | Do(body, e) ->
+      let labbegin = newLabel()
+      let labtest  = newLabel()
+      cStmt body varEnv funEnv @ [GOTO labtest; Label labbegin] @ cStmt body varEnv funEnv
+      @ [Label labtest] @ cExpr e varEnv funEnv @ [IFNZRO labbegin]
+    | For(e1,e2,e3,body) ->
+      let labbegin = newLabel()
+      let labtest  = newLabel()
+      cExpr e1 varEnv funEnv @ [GOTO labtest; Label labbegin] @ cStmt body varEnv funEnv @  cExpr e3 varEnv funEnv
+      @ [Label labtest] @ cExpr e2 varEnv funEnv @ [IFNZRO labbegin]
+
     | Switch(e, l) -> 
      //   let instr1 = cExpr e varEnv funEnv
         let rec loop ss varEnv = 
@@ -259,6 +270,13 @@ and cExpr (e : expr) (varEnv : VarEnv) (funEnv : FunEnv) : instr list =
     | CstI i         -> [CSTI i]
     | CstC c          -> [CSTC (System.Char.ConvertToUtf32(c.ToString(),0))]
     | Addr acc       -> cAccess acc varEnv funEnv
+    | Selection(e1, e2, e3) ->
+        let instr1 = cExpr e1 varEnv funEnv
+        let labse = newLabel()
+        let labend  = newLabel()
+        let code1 = instr1 @ [IFZERO labse]@ cExpr e2 varEnv funEnv  @[GOTO labend;Label labse]@ cExpr e3 varEnv funEnv@[Label labend]
+
+        code1
     | Prim1(ope, e1) ->
       cExpr e1 varEnv funEnv
       @ (match ope with

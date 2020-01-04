@@ -13,6 +13,7 @@ type token =
   | ASSIGN
   | AMP
   | COLON
+  | QM
   | NOT
   | SEQOR
   | SEQAND
@@ -42,6 +43,8 @@ type token =
   | LIST
   | SWITCH
   | CASE
+  | DO
+  | FOR
   | CSTSTRING of (string)
   | NAME of (string)
   | CSTCHAR of (char)
@@ -60,6 +63,7 @@ type tokenId =
     | TOKEN_ASSIGN
     | TOKEN_AMP
     | TOKEN_COLON
+    | TOKEN_QM
     | TOKEN_NOT
     | TOKEN_SEQOR
     | TOKEN_SEQAND
@@ -89,6 +93,8 @@ type tokenId =
     | TOKEN_LIST
     | TOKEN_SWITCH
     | TOKEN_CASE
+    | TOKEN_DO
+    | TOKEN_FOR
     | TOKEN_CSTSTRING
     | TOKEN_NAME
     | TOKEN_CSTCHAR

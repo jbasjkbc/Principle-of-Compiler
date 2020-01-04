@@ -34,6 +34,8 @@ let keyword s =
     | "list"    -> LIST
     | "switch"  -> SWITCH
     | "case"    -> CASE
+    | "do"      -> DO
+    | "for"     -> FOR
     | _         -> NAME s
  
 let cEscape s = 
@@ -80,6 +82,7 @@ rule Token = parse
   | '}'             { RBRACE }
   | '['             { LBRACK }
   | ']'             { RBRACK }
+  | '?'             { QM }
   | ';'             { SEMI }
   | ','             { COMMA }
   | ':'             { COLON }
