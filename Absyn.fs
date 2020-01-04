@@ -33,7 +33,7 @@ and access =
   | AccVar of string                 (* Variable access        x    *) 
   | AccDeref of expr                 (* Pointer dereferencing  *p   *)
   | AccIndex of access * expr        (* Array indexing         a[e] *)
-  | AccIndex2 of access * expr * expr        (* Array indexing         a[e] *)
+  | AccIndex2 of access * int option * int option        (* Array indexing         a[e] *)
                                                                    
 and stmt =                                                         
   | If of expr * stmt * stmt         (* Conditional                 *)

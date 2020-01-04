@@ -166,7 +166,7 @@ Access:
   | LPAR Access RPAR                    { $2                  }  
   | TIMES Access                        { AccDeref (Access $2)}
   | TIMES AtExprNotAccess               { AccDeref $2         }
-  | Access LBRACK Expr RBRACK LBRACK Expr RBRACK   { AccIndex2($1, $3, $6) }
+  | Access LBRACK CSTINT RBRACK LBRACK CSTINT RBRACK   { AccIndex2($1, Some $3, Some $6) }
   | Access LBRACK Expr RBRACK           { AccIndex($1, $3)    }
 ;
 

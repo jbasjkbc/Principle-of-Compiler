@@ -214,7 +214,7 @@ let rec exec stmt (locEnv : locEnv) (gloEnv : gloEnv) (store : store) : store =
                 //求值 循环条件,注意变更环境 store
               let (v, store2) = eval e locEnv gloEnv store1
                 // 继续循环
-              if v<>0 then loop (exec body locEnv gloEnv store2)
+               v<>0 then loop (exec body locEnv gloEnv store2)
                       else store2  //退出循环返回 环境store2
       loop store
     | Switch(e, l) -> 
@@ -403,19 +403,19 @@ and access acc locEnv gloEnv store : int * store =
       let aval = getSto store1 a
       let (i, store2) = eval idx locEnv gloEnv store1
       (aval + i, store2) 
-    | AccIndex2(acc, idx1, idx2) -> 
+    | AccIndex2(acc, Some idx1, Some idx2) -> 
       let (a, store1) = access acc locEnv gloEnv store
       let aval = getSto store1 a
-      let (i1, store2) = eval idx1 locEnv gloEnv store1
-      let (i2, store3) = eval idx2 locEnv gloEnv store2
+      // let (i1, store2) = eval idx1 locEnv gloEnv store1
+      // let (i2, store3) = eval idx2 locEnv gloEnv store2
       let rec searchAdd loc i1 = 
         match i1 with
           | 0 -> loc
           | _ -> searchAdd (getSto store2 (loc+2)) (i1-1)
-      let loc1 = searchAdd (getSto store2 (aval+3)) i1
+      let loc1 = searchAdd (getSto store2 (aval+3)) index1
       (printf "%c" (char 10))
       (printf "%d " (getSto store2 (loc1+3)))
-      if (getSto store2 loc1) <0 then (loc1+1, store3)  else (((searchAdd (getSto store2 (loc1+3)) i2)+1), store3)
+      if (getSto store2 loc1) <0 then (loc1+1, store3)  else (((searchAdd (getSto store2 (loc1+3)) index2)+1), store3)
 
 and evals es locEnv gloEnv store : int list * store = 
     match es with 
