@@ -300,8 +300,8 @@ and stmtordec3 stmtordec e locEnv gloEnv store =
                     let store4 = setSto store3 (loc+1) l
                     let res3 = if (getSto store2 ((snd locE)-4)) < 0 then ((snd locE)-4) else ((snd locE)-5)
                     let store5 = setSto store4 (loc+3) (res3)          //3:该列表的第一个元素地址
-                    (printf "%d " loc)
-                    (printf "%d " res3)
+       //             (printf "%d " loc)
+       //             (printf "%d " res3)
                     (env0, store5)
               //        (((fst locEnv3),loc), store7)
     | CNode va -> let (env0, store) = allocateN va locEnv store
@@ -348,8 +348,8 @@ and stmtordec2 stmtordec locEnv gloEnv store =
                     let store4 = setSto store3 (loc+1) l
                     let res3 = if (getSto store2 ((snd locE)-4)) < 0 then ((snd locE)-4) else ((snd locE)-5)
                     let store5 = setSto store4 (loc+3) (res3)          //3:该列表的第一个元素地址
-                    (printf "%d " loc)
-                    (printf "%d " res3)
+        //            (printf "%d " loc)
+        //            (printf "%d " res3)
                     (env0, store5)
               //        (((fst locEnv3),loc), store7)
     | CNode va -> let (env0, store) = allocateN va locEnv store
@@ -441,8 +441,8 @@ and access acc locEnv gloEnv store : int * store =
           | 0 -> loc
           | _ -> searchAdd (getSto store1 (loc+2)) (idx1-1)
       let loc1 = searchAdd (getSto store1 (aval+3)) idx1
-      (printf "%c" (char 10))
-      (printf "%d " (getSto store1 (loc1+3)))
+//     (printf "%c" (char 10))
+//      (printf "%d " (getSto store1 (loc1+3)))
       if (getSto store1 loc1) <0 then (loc1+1, store1)  else (((searchAdd (getSto store1 (loc1+3)) idx2)+1), store1)
 
 and evals es locEnv gloEnv store : int list * store = 

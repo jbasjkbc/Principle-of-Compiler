@@ -6,6 +6,6 @@ open ParseAndComp
 
 [<EntryPoint>]
 let main argv =
-    compileToFile (fromFile "ex6.c") "ex6.out"
-//    run (fromFile "ex6.c") [2];
+    compileToFile (fromFile "ex7.c") "ex7.out"
+//    run (fromFile "ex7.c") [2];
     0 // return an integer exit code

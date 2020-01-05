@@ -18,6 +18,7 @@ type token =
   | SEQOR
   | SEQAND
   | SELFPLUS
+  | SELFSUB
   | EQ
   | NE
   | GT
@@ -29,6 +30,11 @@ type token =
   | TIMES
   | DIV
   | MOD
+  | PLUSE
+  | MINUSE
+  | TIMESE
+  | DIVE
+  | MODE
   | CHAR
   | ELSE
   | IF
@@ -68,6 +74,7 @@ type tokenId =
     | TOKEN_SEQOR
     | TOKEN_SEQAND
     | TOKEN_SELFPLUS
+    | TOKEN_SELFSUB
     | TOKEN_EQ
     | TOKEN_NE
     | TOKEN_GT
@@ -79,6 +86,11 @@ type tokenId =
     | TOKEN_TIMES
     | TOKEN_DIV
     | TOKEN_MOD
+    | TOKEN_PLUSE
+    | TOKEN_MINUSE
+    | TOKEN_TIMESE
+    | TOKEN_DIVE
+    | TOKEN_MODE
     | TOKEN_CHAR
     | TOKEN_ELSE
     | TOKEN_IF
@@ -117,6 +129,7 @@ type nonTerminalId =
     | NONTERM_Stmt
     | NONTERM_StmtM
     | NONTERM_StmtU
+    | NONTERM_LRStmts
     | NONTERM_Stmts
     | NONTERM_Stmts1
     | NONTERM_Expr

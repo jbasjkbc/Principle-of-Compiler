@@ -19,13 +19,13 @@ let nl = CstI 10
 %token <string> CSTSTRING NAME
 
 %token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE PRINTCH LIST SWITCH CASE DO FOR
-%token PLUS MINUS TIMES DIV MOD
+%token PLUS MINUS TIMES DIV MOD PLUSE MINUSE TIMESE DIVE MODE
 %token EQ NE GT LT GE LE
-%token NOT SEQOR SEQAND SELFPLUS
+%token NOT SEQOR SEQAND SELFPLUS SELFSUB
 %token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP COLON QM
 %token EOF
 
-%right ASSIGN             /* lowest precedence */
+%right ASSIGN PLUSE MINUSE TIMESE DIVE MODE            /* lowest precedence */
 %nonassoc PRINT PRINTCH
 %left SEQOR
 %left SEQAND
@@ -33,7 +33,7 @@ let nl = CstI 10
 %nonassoc GT LT GE LE
 %left PLUS MINUS
 %left TIMES DIV MOD 
-%nonassoc NOT AMP SELFPLUS
+%nonassoc NOT AMP SELFPLUS SELFSUB
 %nonassoc LBRACK          /* highest precedence  */
 
 %start Main
@@ -104,7 +104,7 @@ StmtM:  /* No unbalanced if-else */
   | Block                               { $1                   }
   | IF LPAR Expr RPAR StmtM ELSE StmtM  { If($3, $5, $7)       }
   | WHILE LPAR Expr RPAR StmtM          { While($3, $5)        }
-  | SWITCH LPAR Expr RPAR Stmts         { Switch($3, $5)       }
+  | SWITCH LPAR Expr RPAR LRStmts       { Switch($3, $5)       }
   | DO Stmt WHILE LPAR Expr RPAR        { Do($2, $5)           }
   | FOR LPAR Expr SEMI Expr SEMI Expr RPAR Stmt  { For($3, $5, $7, $9)      }
 ;
@@ -114,6 +114,10 @@ StmtU:
   | IF LPAR Expr RPAR Stmt              { If($3, $5, Block []) }
   | WHILE LPAR Expr RPAR StmtU          { While($3, $5)        }
 ;
+
+LRStmts:
+    Stmts                               { $1       } 
+  | LBRACE Stmts RBRACE                 { $2       }
 
 Stmts:
     /* empty */                         { []       }
@@ -133,11 +137,17 @@ Expr:
 
 ExprNotAccess:
     AtExprNotAccess                     { $1                  }
+  | Access PLUSE Expr                   { Assign($1, Prim2("+", Access($1), $3)) }
+  | Access MINUSE Expr                  { Assign($1, Prim2("-", Access($1), $3)) }
+  | Access TIMESE Expr                  { Assign($1, Prim2("*", Access($1), $3)) }
+  | Access DIVE Expr                    { Assign($1, Prim2("/", Access($1), $3)) }
+  | Access MODE Expr                    { Assign($1, Prim2("%", Access($1), $3)) }
   | Access ASSIGN LExpr                 { Assign2($1, $3)     }
   | Access ASSIGN Expr                  { Assign($1, $3)      }
   | NAME LPAR Exprs RPAR                { Call($1, $3)        }  
   | NOT Expr                            { Prim1("!", $2)      }
-  | SELFPLUS Access                     { Assign($2, Prim2("+", Access($2), CstI 1)) }   
+  | SELFPLUS Access                     { Assign($2, Prim2("+", Access($2), CstI 1)) } 
+  | SELFSUB Access                      { Assign($2, Prim2("-", Access($2), CstI 1)) }   
   | PRINTCH Expr                        { Prim1("printch", $2) }
   | PRINT Expr                          { Prim1("printi", $2) }
   | PRINTLN                             { Prim1("printc", nl) }

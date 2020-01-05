@@ -60,6 +60,12 @@ rule Token = parse
                     { keyword (lexemeAsString lexbuf) }
   | '''             { CSTCHAR (System.Char.Parse (Char [] lexbuf))  }
   | ['+']['+']      { SELFPLUS }
+  | ['-']['-']      { SELFSUB  }
+  | ['+']['=']      { PLUSE  }
+  | ['-']['=']      { MINUSE }
+  | ['*']['=']      { TIMESE  }
+  | ['/']['=']      { DIVE  }
+  | ['%']['=']      { MODE  }
   | '+'             { PLUS } 
   | '-'             { MINUS } 
   | '*'             { TIMES } 

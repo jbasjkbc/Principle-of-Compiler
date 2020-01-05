@@ -1,16 +1,17 @@
 void main(int n){
 
-  char a;
-
-  a = 'm';
-  printch a;
-  println;
-  if (n < 1)
-	print 0;
-  else
-	print 10;
-  
-
+  switch (n){
+    case 1:{
+      n = 10;n = n + 10;
+    }
+    case 2:{
+      n = 12; n = n + 10;
+    }
+    case 3:{
+      n =  13; n = n+10;
+    }
+  }
+  print n;
   println;
 
 }
